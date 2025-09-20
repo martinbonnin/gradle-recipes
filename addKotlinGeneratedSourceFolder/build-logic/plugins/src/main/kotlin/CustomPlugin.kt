@@ -35,8 +35,11 @@ class CustomPlugin : Plugin<Project> {
                 val generateKotlinSources =
                     project.tasks.register<GenerateKotlinSources>("generate${variant.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}KotlinSources")
 
-                // Changing to sources.java here makes it work
-                variant.sources.kotlin!!.addGeneratedSourceDirectory(
+                generateKotlinSources.configure {
+                    it.outputDirectory.set(project.file("build/foo"))
+                }
+                // This doesn't overwrites the outputDirectory
+                variant.sources.java!!.addGeneratedSourceDirectory(
                     generateKotlinSources,
                     GenerateKotlinSources::outputDirectory
                 )
