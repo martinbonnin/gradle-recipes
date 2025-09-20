@@ -15,22 +15,15 @@
  */
 
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.api.artifact.SingleArtifact
 import com.android.build.gradle.AppPlugin
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.register
-import java.lang.RuntimeException
 
 class CustomPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -39,16 +32,14 @@ class CustomPlugin : Plugin<Project> {
             val androidComponents =
                 project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
             androidComponents.onVariants { variant ->
-                variant.sources.kotlin
-                    ?.let {
-                        val assetCreationTask =
-                            project.tasks.register<GenerateKotlinSources>("generate${variant.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}KotlinSources")
+                val generateKotlinSources =
+                    project.tasks.register<GenerateKotlinSources>("generate${variant.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}KotlinSources")
 
-                        it.addGeneratedSourceDirectory(
-                            assetCreationTask,
-                            GenerateKotlinSources::outputDirectory
-                        )
-                    }
+                // Changing to sources.java here makes it work
+                variant.sources.kotlin!!.addGeneratedSourceDirectory(
+                    generateKotlinSources,
+                    GenerateKotlinSources::outputDirectory
+                )
             }
         }
     }
